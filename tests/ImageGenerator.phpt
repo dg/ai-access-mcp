@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use AIAccess\Http;
-use AIAccess\Mcp\{ImageGenerator, Sandbox};
+use AIAccess\Mcp\{CostMeter, ImageGenerator, Sandbox};
 use AIAccess\Provider\OpenAI;
 use Tester\Assert;
 
@@ -13,6 +13,7 @@ function createGenerator(Http\Client $http, string $dir): ImageGenerator
 	return new ImageGenerator(
 		static fn() => new OpenAI\Client('key', $http),
 		new Sandbox(["$dir/input"], ["$dir/output"]),
+		new CostMeter(['gpt-image-2' => [['inputText' => 1.0, 'inputImage' => 2.0, 'outputImage' => 10.0]]]),
 		'gpt-image-2',
 	);
 }
@@ -26,7 +27,11 @@ function successResponse(string $image): Http\Response
 		'quality' => 'high',
 		'background' => 'opaque',
 		'output_format' => 'png',
-		'usage' => ['input_tokens' => 10, 'output_tokens' => 20],
+		'usage' => [
+			'input_tokens' => 30,
+			'output_tokens' => 20,
+			'input_tokens_details' => ['text_tokens' => 10, 'image_tokens' => 20],
+		],
 	]);
 }
 
@@ -50,7 +55,9 @@ test('writes the image and the prompt and describes the result', function () use
 	Assert::same('1536x1024', $result['size']);
 	Assert::same('high', $result['quality']);
 	Assert::same(0, $result['referenceCount']);
-	Assert::same(['input_tokens' => 10, 'output_tokens' => 20], $result['usage']);
+	Assert::same(['inputText' => 10, 'inputImage' => 20, 'outputImage' => 20, 'outputText' => 0], $result['usage']);
+	Assert::same(0.00025, $result['cost']);
+	Assert::same(0.00025, $result['sessionCost']);
 
 	$payload = $http->requests[0]['payload'];
 	Assert::contains('images/generations', $http->requests[0]['url']);

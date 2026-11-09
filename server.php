@@ -9,7 +9,7 @@ require is_file(__DIR__ . '/vendor/autoload.php')
 	: __DIR__ . '/../../autoload.php';
 
 use AIAccess\Http\{CurlClient, RetryClient};
-use AIAccess\Mcp\{ImageGenerator, ImageTools, McpToolCallGuard, Sandbox};
+use AIAccess\Mcp\{CostMeter, ImageGenerator, ImageTools, McpToolCallGuard, Sandbox};
 use AIAccess\Provider\OpenAI;
 use Mcp\Capability\Registry\{Container, ReferenceHandler};
 use Mcp\Exception\ToolCallException;
@@ -42,6 +42,7 @@ $sandbox = new Sandbox(
 	array_map(dirname(...), array_filter([$openAiKeyFile])),
 );
 
+$meter = CostMeter::fromFile(__DIR__ . '/prices.neon');
 $container = new Container;
 $toolFiles = $toolInstructions = [];
 
@@ -51,6 +52,7 @@ if ($openAiKeyFile !== '') {
 	$container->set(ImageTools::class, new ImageTools(new ImageGenerator(
 		static fn() => new OpenAI\Client($readKey($openAiKeyFile), $http),
 		$sandbox,
+		$meter,
 		$imageModel,
 	)));
 	$toolFiles[] = 'ImageTools.php';

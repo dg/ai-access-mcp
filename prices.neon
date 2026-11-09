@@ -1,0 +1,13 @@
+# USD per million tokens, per model; the first period whose `until` has not passed applies.
+# A model without a valid period reports its cost as unknown. Quote the dates, NEON would decode them.
+#
+# https://developers.openai.com/api/docs/pricing, checked 2026-11-09, Standard tier
+
+gpt-image-2:
+	- {inputText: 5.00, inputImage: 8.00, outputImage: 30.00}
+
+gpt-image-1.5:
+	- {inputText: 5.00, inputImage: 8.00, outputImage: 32.00, outputText: 10.00}
+
+gpt-image-1-mini:
+	- {inputText: 2.00, inputImage: 2.50, outputImage: 8.00}

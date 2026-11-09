@@ -28,7 +28,8 @@ final readonly class ImageTools
 	 * Generate an image with an AI model and save it to a file. Every call costs money: make it only
 	 * with the explicit consent of the user, after showing the final prompt.
 	 * Without reference images it creates a new picture, with them it edits them or works from them.
-	 * High quality with references can take minutes. Returns the description of the result and a small preview.
+	 * High quality with references can take minutes. Returns the description of the result with its cost in USD
+	 * and a small preview.
 	 *
 	 * @param string $prompt  Complete description of the image
 	 * @param string $path  Absolute path of a new file ending in .png, .jpg, .jpeg or .webp, which also decides the format

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use AIAccess\Http;
-use AIAccess\Mcp\{ImageGenerator, ImageTools, Sandbox};
+use AIAccess\Mcp\{CostMeter, ImageGenerator, ImageTools, Sandbox};
 use AIAccess\Provider\OpenAI;
 use Mcp\Capability\Discovery\Discoverer;
 use Mcp\Capability\Formatter\ToolResultFormatter;
@@ -40,7 +40,12 @@ test('schema', function () use ($tools) {
 function createTools(string $image, string $dir): ImageTools
 {
 	$http = new FakeHttp([new Http\Response(200, [], ['data' => [['b64_json' => base64_encode($image)]]])]);
-	return new ImageTools(new ImageGenerator(static fn() => new OpenAI\Client('key', $http), new Sandbox([], [$dir]), 'gpt-image-2'));
+	return new ImageTools(new ImageGenerator(
+		static fn() => new OpenAI\Client('key', $http),
+		new Sandbox([], [$dir]),
+		new CostMeter([]),
+		'gpt-image-2',
+	));
 }
 
 

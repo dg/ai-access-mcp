@@ -22,6 +22,7 @@ final readonly class ImageGenerator
 		/** @var \Closure(): OpenAI\Client */
 		private \Closure $clientFactory,
 		private Sandbox $sandbox,
+		private CostMeter $meter,
 		private string $defaultModel,
 	) {
 	}
@@ -29,7 +30,7 @@ final readonly class ImageGenerator
 
 	/**
 	 * @param  list<string>  $references
-	 * @return array{path: string, promptFile: string, model: string, size: ?string, quality: ?string, background: ?string, referenceCount: int, usage: mixed, preview: ?string}
+	 * @return array{path: string, promptFile: string, model: string, size: ?string, quality: ?string, background: ?string, referenceCount: int, usage: ?array<string, int>, cost: ?float, sessionCost: float, preview: ?string}
 	 */
 	public function generate(
 		string $prompt,
@@ -59,6 +60,9 @@ final readonly class ImageGenerator
 			$reserved[] = $imageFile = ReservedFile::reserve($target);
 			$reserved[] = $promptFile = ReservedFile::reserve($promptTarget);
 			$image = ($this->clientFactory)()->generateImage($prompt, $model, $media, $size, $quality, $background, $format);
+			$response = $image->getRawResponse() ?? [];
+			$tokens = self::extractTokens($response['usage'] ?? null);
+			$cost = $this->meter->record($model, $tokens);
 			$imageFile->write($image->getData());
 			$promptFile->write($prompt);
 		} catch (\Throwable $e) {
@@ -68,7 +72,6 @@ final readonly class ImageGenerator
 			throw $e;
 		}
 
-		$response = $image->getRawResponse() ?? [];
 		return [
 			'path' => $target,
 			'promptFile' => $promptTarget,
@@ -77,9 +80,26 @@ final readonly class ImageGenerator
 			'quality' => $response['quality'] ?? $quality,
 			'background' => $response['background'] ?? $background,
 			'referenceCount' => count($references),
-			'usage' => $response['usage'] ?? null,
+			'usage' => $tokens,
+			...$cost,
 			'preview' => self::createPreview($image->getData()),
 		];
+	}
+
+
+	/**
+	 * @return ?array<string, int>
+	 */
+	private static function extractTokens(mixed $usage): ?array
+	{
+		return is_array($usage)
+			? [
+				'inputText' => $usage['input_tokens_details']['text_tokens'] ?? $usage['input_tokens'] ?? 0,
+				'inputImage' => $usage['input_tokens_details']['image_tokens'] ?? 0,
+				'outputImage' => $usage['output_tokens_details']['image_tokens'] ?? $usage['output_tokens'] ?? 0,
+				'outputText' => $usage['output_tokens_details']['text_tokens'] ?? 0,
+			]
+			: null;
 	}
 
 

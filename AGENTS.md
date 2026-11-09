@@ -11,6 +11,8 @@ It describes an MCP server over the library [AI Access](https://ai-access.deegee
 - `dresscode check` – coding style (DressCode, `dresscode.neon`)
 - after adding a class, run `composer dump-autoload` (classmap autoload)
 
+**Live tests** use the keys in `W:/AI/keys`. David allows them for test tasks, but only as far as strictly necessary: the cheapest settings, a single call.
+
 ## Architecture
 
 - `server.php` – entry point: reads the environment (below), registers the tools of the configured providers, instructions for the model, stdio transport.
@@ -18,6 +20,7 @@ It describes an MCP server over the library [AI Access](https://ai-access.deegee
 - `src/ImageGenerator.php` – the call of the provider, the output files, the preview.
 - `src/Sandbox.php` – which files may be read and written.
 - `src/ReservedFile.php` – claims an output name before the paid call and writes through a temporary file.
+- `src/CostMeter.php` and `prices.neon` – the cost of a call and the sum for the process. **Update the price list when a provider changes its prices or a new model is used**; a model missing there reports its cost as unknown.
 - `src/McpToolCallGuard.php` – converts everything a tool throws into a `ToolCallException` (a result with `isError`).
 
 **Environment**: `OPENAI_API_KEY_FILE`, `AI_ACCESS_IMAGE_MODEL` (default `gpt-image-2`), `AI_ACCESS_READ_ROOTS` and `AI_ACCESS_WRITE_ROOTS` (directories separated by `PATH_SEPARATOR`). The directory of a key file is always denied.
