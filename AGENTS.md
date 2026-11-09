@@ -1,0 +1,23 @@
+# To My Agents!
+
+It is my fervent wish that this file guide every AI coding agent working with code in this repository.
+
+It describes an MCP server over the library [AI Access](https://ai-access.deegee.dev) (`W:/libs/AI-Access`): it lets an AI assistant hand work over to other models, text to Gemini or OpenAI and images to OpenAI.
+
+## Commands
+
+- `vendor/bin/tester tests -s` – tests (no real HTTP calls)
+- `vendor/bin/phpstan analyse` – static analysis, level 8
+- `dresscode check` – coding style (DressCode, `dresscode.neon`)
+- after adding a class, run `composer dump-autoload` (classmap autoload)
+
+## Agreed design
+
+- **Two tools, the model is a parameter**: `generate_text` (Gemini by default, or OpenAI) and `generate_image` (OpenAI). The provider follows from the model id; a model or a parameter the chosen provider does not support is an error, never silently ignored. No embeddings, no batch.
+- **A provider is active when its key file is configured** (`GEMINI_API_KEY_FILE`, `OPENAI_API_KEY_FILE`); a tool with no active provider is not registered at all. Keys never appear in the configuration itself.
+- **Every client runs its own server process**, so the server keeps no state shared between processes: no archive, no journal, no budget across sessions. The result of a call goes to a path the caller names.
+- **Files are read and written only under configured roots**, one list for reading and one for writing; nothing is allowed when a list is unset, and key files and `.env` never are.
+- **An output file is never overwritten.** The name is checked and reserved before the paid call, so a collision costs nothing, and the content is written through a temporary file and a rename.
+- **A request that may have reached the provider is never repeated**, because the answer would be paid twice: a retry follows only a 429, a 5xx or a connection that was not established.
+- **The cost of a call** comes from a price list kept here (AI Access knows no prices) and is reported together with the sum for the server process; there is no budget.
+- **Skills that use this server** (generating images, improving text through Gemini, calling Gemini in general) must stress that a call costs money and runs only with David's explicit consent.
