@@ -11,6 +11,23 @@ It describes an MCP server over the library [AI Access](https://ai-access.deegee
 - `dresscode check` – coding style (DressCode, `dresscode.neon`)
 - after adding a class, run `composer dump-autoload` (classmap autoload)
 
+## Architecture
+
+- `server.php` – entry point: reads the environment (below), registers the tools of the configured providers, instructions for the model, stdio transport.
+- `src/ImageTools.php` – thin adapter with `#[McpTool]`: `generate_image`.
+- `src/ImageGenerator.php` – the call of the provider, the output files, the preview.
+- `src/Sandbox.php` – which files may be read and written.
+- `src/ReservedFile.php` – claims an output name before the paid call and writes through a temporary file.
+- `src/McpToolCallGuard.php` – converts everything a tool throws into a `ToolCallException` (a result with `isError`).
+
+**Environment**: `OPENAI_API_KEY_FILE`, `AI_ACCESS_IMAGE_MODEL` (default `gpt-image-2`), `AI_ACCESS_READ_ROOTS` and `AI_ACCESS_WRITE_ROOTS` (directories separated by `PATH_SEPARATOR`). The directory of a key file is always denied.
+
+Smoke test over stdio, without any paid call:
+
+```bash
+printf '%s\n%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | OPENAI_API_KEY_FILE=none php server.php
+```
+
 ## Agreed design
 
 - **Two tools, the model is a parameter**: `generate_text` (Gemini by default, or OpenAI) and `generate_image` (OpenAI). The provider follows from the model id; a model or a parameter the chosen provider does not support is an error, never silently ignored. No embeddings, no batch.
@@ -18,6 +35,6 @@ It describes an MCP server over the library [AI Access](https://ai-access.deegee
 - **Every client runs its own server process**, so the server keeps no state shared between processes: no archive, no journal, no budget across sessions. The result of a call goes to a path the caller names.
 - **Files are read and written only under configured roots**, one list for reading and one for writing; nothing is allowed when a list is unset, and key files and `.env` never are.
 - **An output file is never overwritten.** The name is checked and reserved before the paid call, so a collision costs nothing, and the content is written through a temporary file and a rename.
-- **A request that may have reached the provider is never repeated**, because the answer would be paid twice: a retry follows only a 429, a 5xx or a connection that was not established.
+- **A request that may have reached the provider is never repeated**, because the answer would be paid twice. The `RetryClient` of AI Access keeps this rule: a request with a body is repeated only after 408, 429, 500, 503 or a connection that was not established.
 - **The cost of a call** comes from a price list kept here (AI Access knows no prices) and is reported together with the sum for the server process; there is no budget.
 - **Skills that use this server** (generating images, improving text through Gemini, calling Gemini in general) must stress that a call costs money and runs only with David's explicit consent.
