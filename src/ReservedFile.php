@@ -2,6 +2,8 @@
 
 namespace AIAccess\Mcp;
 
+use function strlen;
+
 
 /**
  * A new file claimed before the paid work that produces its content, so two clients never write

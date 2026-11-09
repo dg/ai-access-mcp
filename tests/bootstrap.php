@@ -1,6 +1,9 @@
 <?php declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+if (@!include __DIR__ . '/../vendor/autoload.php') { // @ dependencies may not be installed
+	echo 'Install Nette Tester using `composer install`';
+	exit(1);
+}
 
 Tester\Environment::setup();
 Tester\Environment::setupFunctions();
@@ -15,6 +18,10 @@ function getTempDir(): string
 }
 
 
+/**
+ * @param  int<1, max>  $width
+ * @param  int<1, max>  $height
+ */
 function createPng(int $width, int $height): string
 {
 	$image = imagecreatetruecolor($width, $height);

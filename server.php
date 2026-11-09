@@ -78,7 +78,7 @@ $builder = Server::builder()
 	->setSession(new InMemorySessionStore(ttl: PHP_INT_MAX))
 	->setInstructions($instructions)
 	// discovery would otherwise advertise prompts, resources and completions the server does not have
-	->setCapabilities(new ServerCapabilities(tools: true, resources: false, prompts: false, logging: false, completions: false))
+	->setCapabilities(new ServerCapabilities(resources: false, prompts: false))
 	->setContainer($container)
 	->setReferenceHandler(new McpToolCallGuard(new ReferenceHandler($container)));
 

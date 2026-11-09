@@ -3,7 +3,7 @@
 	"description": "🤖 AI Access MCP: an MCP server that lets Claude and other AI assistants hand work over to other models, text to Gemini or OpenAI and images to OpenAI.",
 	"keywords": ["ai", "mcp", "model context protocol", "gemini", "openai", "image generation", "claude"],
 	"homepage": "https://ai-access.deegee.dev",
-	"license": ["BSD-3-Clause"],
+	"license": "MIT",
 	"authors": [
 		{
 			"name": "David Grudl",
@@ -11,20 +11,24 @@
 		}
 	],
 	"require": {
-		"php": ">=8.3",
+		"php": "8.4 - 8.6",
 		"ext-gd": "*",
 		"ai-access/ai-access": "^1.1",
 		"mcp/sdk": "^0.9",
-		"symfony/finder": "^7.0 || ^8.0",
-		"nette/neon": "^3.4"
+		"nette/neon": "^3.4",
+		"symfony/finder": "^7.0 || ^8.0"
 	},
 	"require-dev": {
-		"nette/tester": "^2.5",
-		"phpstan/phpstan": "^2.2",
+		"nette/tester": "^2.6",
+		"tracy/tracy": "^2.12",
+		"phpstan/phpstan": "^2.3",
 		"phpstan/extension-installer": "^1.4",
 		"nette/phpstan-rules": "^1.0"
 	},
 	"autoload": {
+		"psr-4": {
+			"AIAccess\\Mcp\\": "src"
+		},
 		"classmap": ["src/"]
 	},
 	"scripts": {
@@ -35,6 +39,11 @@
 		"allow-plugins": {
 			"phpstan/extension-installer": true,
 			"php-http/discovery": true
+		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0-dev"
 		}
 	}
 }

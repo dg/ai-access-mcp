@@ -68,8 +68,8 @@ test('writes the image and the prompt and describes the result', function () use
 
 test('the preview is a small WebP', function () use ($dir, $png) {
 	$result = createGenerator(new FakeHttp([successResponse($png)]), $dir)->generate('x', "$dir/output/preview.png");
-	$size = getimagesizefromstring($result['preview']);
-	Assert::same([512, 341, 'image/webp'], [$size[0], $size[1], $size['mime']]);
+	$size = getimagesizefromstring((string) $result['preview']) ?: [];
+	Assert::same([512, 341, 'image/webp'], [$size[0] ?? null, $size[1] ?? null, $size['mime'] ?? null]);
 });
 
 

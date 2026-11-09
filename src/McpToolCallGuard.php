@@ -5,6 +5,7 @@ namespace AIAccess\Mcp;
 use AIAccess;
 use Mcp\Capability\Registry\{ElementReference, ReferenceHandlerInterface};
 use Mcp\Exception\ToolCallException;
+use function sprintf;
 
 
 /**

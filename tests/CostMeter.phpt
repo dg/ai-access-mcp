@@ -31,8 +31,8 @@ test('the costs add up, unknown ones are left out', function () use ($prices) {
 
 
 test('the first period that has not passed applies', function () use ($prices) {
-	Assert::same(1.0, (new CostMeter($prices, '2026-12-31'))->record('dated', ['input' => 1_000_000])['cost']);
-	Assert::same(2.0, (new CostMeter($prices, '2027-01-01'))->record('dated', ['input' => 1_000_000])['cost']);
+	Assert::same(1.0, new CostMeter($prices, '2026-12-31')->record('dated', ['input' => 1_000_000])['cost']);
+	Assert::same(2.0, new CostMeter($prices, '2027-01-01')->record('dated', ['input' => 1_000_000])['cost']);
 });
 
 
@@ -45,7 +45,7 @@ test('the cost is unknown without a valid period, a price or a usage', function 
 
 
 test('a kind of tokens without a price does not matter when there are none', function () use ($prices) {
-	Assert::same(0.000002, (new CostMeter($prices))->record('model', ['input' => 1, 'other' => 0])['cost']);
+	Assert::same(0.000002, new CostMeter($prices)->record('model', ['input' => 1, 'other' => 0])['cost']);
 });
 
 

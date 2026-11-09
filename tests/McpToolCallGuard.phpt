@@ -22,7 +22,7 @@ function callGuard(Throwable $thrown): void
 			throw $this->thrown;
 		}
 	};
-	(new McpToolCallGuard($handler))->handle(new ElementReference(static fn() => null), []);
+	new McpToolCallGuard($handler)->handle(new ElementReference(static fn() => null), []);
 }
 
 

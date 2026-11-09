@@ -4,6 +4,7 @@ namespace AIAccess\Mcp;
 
 use AIAccess\Media;
 use AIAccess\Provider\OpenAI;
+use function count, function_exists, is_array, strlen;
 
 
 /**
@@ -115,7 +116,7 @@ final readonly class ImageGenerator
 
 		$scale = min(1, self::PreviewSize / max(imagesx($image), imagesy($image)));
 		$preview = imagescale($image, max(1, (int) round(imagesx($image) * $scale)));
-		imagesavealpha($preview, true);
+		imagesavealpha($preview, enable: true);
 		ob_start();
 		imagewebp($preview, quality: 75);
 		return (string) ob_get_clean();

@@ -19,17 +19,17 @@ test('generate_image is discovered with its annotations', function () use ($tool
 	$tool = $tools['generate_image']->tool;
 	Assert::same('Generate an image', $tool->title);
 	Assert::same([false, false, false, true], [
-		$tool->annotations->readOnlyHint,
-		$tool->annotations->destructiveHint,
-		$tool->annotations->idempotentHint,
-		$tool->annotations->openWorldHint,
+		$tool->annotations?->readOnlyHint,
+		$tool->annotations?->destructiveHint,
+		$tool->annotations?->idempotentHint,
+		$tool->annotations?->openWorldHint,
 	]);
-	Assert::contains('explicit consent', $tool->description);
+	Assert::contains('explicit consent', (string) $tool->description);
 });
 
 
 test('schema', function () use ($tools) {
-	$schema = $tools['generate_image']->tool->inputSchema;
+	$schema = json_decode((string) json_encode($tools['generate_image']->tool->inputSchema), associative: true);
 	Assert::same(['prompt', 'path'], $schema['required']);
 	Assert::same(['low', 'medium', 'high', 'auto'], $schema['properties']['quality']['enum']);
 	Assert::same(['transparent', 'opaque', 'auto'], $schema['properties']['background']['enum']);

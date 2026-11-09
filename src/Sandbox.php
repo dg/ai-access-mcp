@@ -2,6 +2,8 @@
 
 namespace AIAccess\Mcp;
 
+use const PHP_OS_FAMILY;
+
 
 /**
  * Decides which files the tools may read and write. A writable root is readable too. Denied paths
@@ -94,12 +96,7 @@ final readonly class Sandbox
 				return false;
 			}
 		}
-		foreach ($roots as $root) {
-			if (self::isWithin($path, self::normalize($root))) {
-				return true;
-			}
-		}
-		return false;
+		return array_any($roots, fn($root) => self::isWithin($path, self::normalize($root)));
 	}
 
 
