@@ -34,7 +34,9 @@ final readonly class ImageTools
 	 * @param string $prompt  Complete description of the image
 	 * @param string $path  Absolute path of a new file ending in .png, .jpg, .jpeg or .webp, which also decides the format
 	 * @param string[] $referenceImages  Absolute paths of PNG, JPEG or WebP images to edit or work from, at most 16
-	 * @param ?string $size  WIDTHxHEIGHT, e.g. 1536x1024 (default: chosen by the model)
+	 * @param ?string $size  WIDTHxHEIGHT, e.g. 1536x1024 (default: chosen by the model). The gpt-image-2 family takes
+	 *   any size with both sides multiples of 16, at most 3840 px and 3:1, and 655 360 to 8 294 400 pixels;
+	 *   older models only 1024x1024, 1536x1024 and 1024x1536
 	 * @param ?string $quality  Cost and detail grow with it (default: chosen by the model)
 	 * @param ?string $background  transparent needs .png or .webp (default: chosen by the model)
 	 * @param ?string $model  Model id starting with gpt-image- (default: configured on the server)
