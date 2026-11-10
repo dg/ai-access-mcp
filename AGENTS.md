@@ -21,7 +21,7 @@ It describes an MCP server over the library [AI Access](https://ai-access.deegee
 - `src/ContextCache.php` – the explicit cache of Gemini for the current batch. Gemini refuses a system instruction beside a cache, so the instructions are stored in it. The cost of a call does not include the storage, which the result reports per hour; deleting it when the server ends is only an attempt, the host gives the process 300 ms.
 - `src/Sandbox.php` – which files may be read and written.
 - `src/ReservedFile.php` – claims an output name before the paid call and writes through a temporary file.
-- `src/CostMeter.php` and `prices.neon` – the cost of a call and the sum for the process. **Update the price list when a provider changes its prices or a new model is used**; a model missing there reports its cost as unknown.
+- `src/CostMeter.php` and `prices.neon` – the cost of a call and the sum for the process. **Update the price list when a provider changes its prices or a new model is used**; a dated snapshot id (`model-YYYY-MM-DD`) is priced as the undated model unless it has an entry of its own, and a model missing there reports its cost as unknown.
 - `src/McpToolCallGuard.php` – converts everything a tool throws into a `ToolCallException` (a result with `isError`).
 
 **Environment**: `GEMINI_API_KEY_FILE`, `OPENAI_API_KEY_FILE`, `AI_ACCESS_TEXT_MODEL` (default `gemini-3.8-flash`), `AI_ACCESS_IMAGE_MODEL` (default `gpt-image-2`), `AI_ACCESS_READ_ROOTS` and `AI_ACCESS_WRITE_ROOTS` (directories separated by `PATH_SEPARATOR`). The directory of a key file is always denied.

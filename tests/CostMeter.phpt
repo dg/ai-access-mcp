@@ -44,6 +44,23 @@ test('the cost is unknown without a valid period, a price or a usage', function 
 });
 
 
+test('a dated snapshot of a model uses the prices of the model, an exact entry wins', function () {
+	$meter = new CostMeter([
+		'model' => [['input' => 2.0]],
+		'model-2026-04-21' => [['input' => 5.0]],
+	]);
+	Assert::same(2.0, $meter->record('model-2026-09-08', ['input' => 1_000_000])['cost']);
+	Assert::same(5.0, $meter->record('model-2026-04-21', ['input' => 1_000_000])['cost']);
+});
+
+
+test('only a trailing date is stripped from the model', function () use ($prices) {
+	$meter = new CostMeter($prices);
+	Assert::null($meter->record('model-2026-09-08-beta', ['input' => 1])['cost']);
+	Assert::null($meter->record('unknown-2026-09-08', ['input' => 1])['cost']);
+});
+
+
 test('a kind of tokens without a price does not matter when there are none', function () use ($prices) {
 	Assert::same(0.000002, new CostMeter($prices)->record('model', ['input' => 1, 'other' => 0])['cost']);
 });

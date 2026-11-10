@@ -78,6 +78,9 @@ final class CostMeter
 	private function findPrices(string $model): ?array
 	{
 		$today = $this->today ?? date('Y-m-d');
-		return array_find($this->prices[$model] ?? [], fn($period) => !isset($period['until']) || $period['until'] >= $today);
+		$periods = $this->prices[$model]
+			?? $this->prices[preg_replace('~-\d{4}-\d{2}-\d{2}$~', '', $model)]
+			?? [];
+		return array_find($periods, fn($period) => !isset($period['until']) || $period['until'] >= $today);
 	}
 }
