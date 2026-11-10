@@ -2,6 +2,7 @@
 
 // stdout carries the JSON-RPC stream, a PHP warning printed there would break it
 ini_set('display_errors', 'stderr');
+ini_set('serialize_precision', '-1');
 
 // Works both as a standalone clone (./vendor) and when installed as a dependency
 require is_file(__DIR__ . '/vendor/autoload.php')
@@ -9,8 +10,10 @@ require is_file(__DIR__ . '/vendor/autoload.php')
 	: __DIR__ . '/../../autoload.php';
 
 use AIAccess\Http\{CurlClient, RetryClient};
-use AIAccess\Mcp\{CostMeter, ImageGenerator, ImageTools, McpToolCallGuard, Sandbox};
-use AIAccess\Provider\OpenAI;
+use AIAccess\Mcp\{
+	ContextCache, CostMeter, ImageGenerator, ImageTools, McpToolCallGuard, Sandbox, TextGenerator, TextTools,
+};
+use AIAccess\Provider\{Gemini, OpenAI};
 use Mcp\Capability\Registry\{Container, ReferenceHandler};
 use Mcp\Exception\ToolCallException;
 use Mcp\Schema\ServerCapabilities;
@@ -34,12 +37,14 @@ $readKey = static fn(string $file): string => trim((string) @file_get_contents($
 	?: throw new ToolCallException("Cannot read the API key from '$file'.");
 
 $openAiKeyFile = trim((string) getenv('OPENAI_API_KEY_FILE'));
+$geminiKeyFile = trim((string) getenv('GEMINI_API_KEY_FILE'));
 $imageModel = trim((string) getenv('AI_ACCESS_IMAGE_MODEL')) ?: 'gpt-image-2';
+$textModel = trim((string) getenv('AI_ACCESS_TEXT_MODEL')) ?: 'gemini-3.8-flash';
 
 $sandbox = new Sandbox(
 	$parseRoots('AI_ACCESS_READ_ROOTS'),
 	$parseRoots('AI_ACCESS_WRITE_ROOTS'),
-	array_map(dirname(...), array_filter([$openAiKeyFile])),
+	array_values(array_map(dirname(...), array_filter([$openAiKeyFile, $geminiKeyFile]))),
 );
 
 $meter = CostMeter::fromFile(__DIR__ . '/prices.neon');
@@ -59,8 +64,22 @@ if ($openAiKeyFile !== '') {
 	$toolInstructions[] = ImageTools::Instructions;
 }
 
+$textHttp = new RetryClient((new CurlClient)->setOptions(requestTimeout: 1200), maxAttempts: 2);
+$textProviders = array_filter([
+	'gemini-' => $geminiKeyFile === '' ? null : static fn() => new Gemini\Client($readKey($geminiKeyFile), $textHttp),
+	'gpt-' => $openAiKeyFile === '' ? null : static fn() => new OpenAI\Client($readKey($openAiKeyFile), $textHttp),
+]);
+
+if ($textProviders) {
+	$contextCache = new ContextCache;
+	register_shutdown_function($contextCache->delete(...)); // best effort, the host may end the process first
+	$container->set(TextTools::class, new TextTools(new TextGenerator($textProviders, $sandbox, $meter, $contextCache, $textModel)));
+	$toolFiles[] = 'TextTools.php';
+	$toolInstructions[] = TextTools::Instructions;
+}
+
 if (!$toolFiles) {
-	fwrite(STDERR, "[ai-access] WARNING: no provider is configured, set OPENAI_API_KEY_FILE.\n");
+	fwrite(STDERR, "[ai-access] WARNING: no provider is configured, set GEMINI_API_KEY_FILE or OPENAI_API_KEY_FILE.\n");
 }
 
 $instructions = implode("\n\n", [

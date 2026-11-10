@@ -40,6 +40,16 @@ final class CostMeter
 
 
 	/**
+	 * Prices tokens without adding them to the sum.
+	 * @param  array<string, int>  $tokens
+	 */
+	public function estimate(string $model, array $tokens): ?float
+	{
+		return $this->calculate($model, $tokens);
+	}
+
+
+	/**
 	 * @param  array<string, int>  $tokens
 	 */
 	private function calculate(string $model, array $tokens): ?float

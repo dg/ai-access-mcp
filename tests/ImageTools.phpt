@@ -15,7 +15,6 @@ $tools = (new Discoverer)->discover(__DIR__ . '/..', ['src'])->getTools();
 
 
 test('generate_image is discovered with its annotations', function () use ($tools) {
-	Assert::same(['generate_image'], array_keys($tools));
 	$tool = $tools['generate_image']->tool;
 	Assert::same('Generate an image', $tool->title);
 	Assert::same([false, false, false, true], [
