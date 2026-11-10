@@ -1,5 +1,4 @@
-[AI Access MCP](https://ai-access.deegee.dev/mcp)
-=================================================
+[![AI Access MCP](https://github.com/user-attachments/assets/57ad39b7-f172-488f-9282-91a0bad3b7be)](https://ai-access.deegee.dev/mcp)
 
 [![Coverage Status](https://coveralls.io/repos/github/dg/ai-access-mcp/badge.svg?branch=master)](https://coveralls.io/github/dg/ai-access-mcp?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/ai-access/mcp/v/stable)](https://github.com/dg/ai-access-mcp/releases)
