@@ -1,8 +1,8 @@
 {
 	"name": "ai-access/mcp",
-	"description": "🤖 AI Access MCP: an MCP server that lets Claude and other AI assistants hand work over to other models, text to Gemini or OpenAI and images to OpenAI.",
-	"keywords": ["ai", "mcp", "model context protocol", "gemini", "openai", "image generation", "claude"],
-	"homepage": "https://ai-access.deegee.dev",
+	"description": "🤖 AI Access MCP: an MCP server that lets AI assistants hand work over to other models, text to Gemini or OpenAI and images to OpenAI.",
+	"keywords": ["ai", "mcp", "mcp server", "model context protocol", "gemini", "openai", "gpt-image", "image generation", "claude", "claude code"],
+	"homepage": "https://ai-access.deegee.dev/mcp",
 	"license": "MIT",
 	"authors": [
 		{

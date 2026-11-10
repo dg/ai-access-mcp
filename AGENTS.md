@@ -2,7 +2,7 @@
 
 It is my fervent wish that this file guide every AI coding agent working with code in this repository.
 
-It describes an MCP server over the library [AI Access](https://ai-access.deegee.dev) (`W:/libs/AI-Access`): it lets an AI assistant hand work over to other models, text to Gemini or OpenAI and images to OpenAI.
+It describes an MCP server over the library [AI Access](https://ai-access.deegee.dev): it lets an AI assistant hand work over to other models, text to Gemini or OpenAI and images to OpenAI.
 
 ## Commands
 
@@ -10,8 +10,6 @@ It describes an MCP server over the library [AI Access](https://ai-access.deegee
 - `vendor/bin/phpstan analyse` – static analysis, level 8
 - `dresscode check` – coding style (DressCode, `dresscode.neon`)
 - after adding a class, run `composer dump-autoload` (classmap autoload)
-
-**Live tests** use the keys in `W:/AI/keys`. David allows them for test tasks, but only as far as strictly necessary: the cheapest settings, a single call.
 
 ## Architecture
 
@@ -41,6 +39,6 @@ printf '%s\n%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"prot
 - **Every client runs its own server process**, so the server keeps no state shared between processes: no archive, no journal, no budget across sessions. The result of a call goes to a path the caller names.
 - **Files are read and written only under configured roots**, one list for reading and one for writing; nothing is allowed when a list is unset, and key files and `.env` never are.
 - **An output file is never overwritten.** The name is checked and reserved before the paid call, so a collision costs nothing, and the content is written through a temporary file and a rename.
-- **A request that may have reached the provider is never repeated**, because the answer would be paid twice. The `RetryClient` of AI Access keeps this rule: a request with a body is repeated only after 408, 429, 500, 503 or a connection that was not established.
+- **A request that may have reached the provider is never repeated**, because the answer would be paid twice. The `RetryClient` of AI Access keeps this rule: any other request than a GET is repeated only after 408, 429, 500, 503 or a connection that was not established.
 - **The cost of a call** comes from a price list kept here (AI Access knows no prices) and is reported together with the sum for the server process; there is no budget.
-- **Skills that use this server** (generating images, improving text through Gemini, calling Gemini in general) must stress that a call costs money and runs only with David's explicit consent.
+- **A call costs money**, so the instructions of the server and the descriptions of the tools say it runs only with the explicit consent of the user.
